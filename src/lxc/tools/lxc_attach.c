@@ -61,6 +61,7 @@ static ssize_t extra_env_size;
 static char **extra_keep;
 static ssize_t extra_keep_size;
 static char *selinux_context = NULL;
+static int exit_with_child = 0;
 
 static const struct option my_longopts[] = {
 	{"elevated-privileges", optional_argument, 0, 'e'},
@@ -77,6 +78,7 @@ static const struct option my_longopts[] = {
 	{"uid", required_argument, 0, 'u'},
 	{"gid", required_argument, 0, 'g'},
         {"context", required_argument, 0, 'c'},
+	{"exit-with-child", no_argument, 0, 'X'},
 	LXC_COMMON_OPTIONS
 };
 
@@ -131,6 +133,9 @@ Options :\n\
   -g, --gid=GID     Execute COMMAND with GID inside the container\n\
   -c, --context=context\n\
                     SELinux Context to transition into\n\
+  -X, --exit-with-child\n\
+                    Exit initial process when main child process exits,\n\
+                    even if detached subprocesses are still running.\n\
 ",
 	.options      = my_longopts,
 	.parser       = my_parser,
@@ -209,6 +214,9 @@ static int my_parser(struct lxc_arguments *args, int c, char *arg)
         case 'c':
                 selinux_context = arg;
                 break;
+		case 'X': /* --exit-with-child */
+			exit_with_child = 1;
+			break;
 	}
 
 	return 0;
@@ -405,6 +413,7 @@ int lxc_attach_main(int argc, char *argv[])
 	attach_options.env_policy	= env_policy;
 	attach_options.extra_env_vars	= extra_env;
 	attach_options.extra_keep_env	= extra_keep;
+	attach_options.exit_with_child = exit_with_child;
 
 	if (my_args.argc > 0) {
 		command.program = my_args.argv[0];

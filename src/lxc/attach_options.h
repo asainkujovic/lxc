@@ -155,6 +155,13 @@ typedef struct lxc_attach_options_t {
 	 * If unset all additional groups are dropped.
 	 */
 	lxc_groups_t groups;
+
+	/*! Flag for exiting on 'SIGCHLD', default 0
+	 *
+	 * by default possible existent detached subprocesses blocks PTY,
+	 * and initial process need to wait for them.
+	 */
+	int exit_with_child;
 } lxc_attach_options_t;
 
 /*! Default attach options to use */
